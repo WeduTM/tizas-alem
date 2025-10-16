@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesinatos de Tizas en ALEM</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Asesinatos de Tizas en ALEM</h1>
+        
+        <p class="horario-info">
+            Horarios de ALEM: Martes 12:30 - 13:30, Jueves 11:30 - 13:30
+        </p>
+
+        <div class="button-section">
+            <button id="chalkButton" disabled>
+                <img src="https://i.imgur.com/your-chalk-image.png" alt="Tiza" class="chalk-image">
+                <span class="button-text">Tiza Rota</span>
+            </button>
+            <p id="buttonMessage" class="message"></p>
+        </div>
+
+        <div class="stats-section">
+            <p>Asesinatos realizados en ALEM a tizas: <span id="totalChalks">0</span></p>
+            <p>Clase con más asesinatos realizados: <span id="mostChalksClass">N/A</span> con <span id="mostChalksCount">0</span> asesinatos.</p>
+        </div>
+
+        <h2>Registro de Asesinatos Recientes</h2>
+        <ul id="chalkLog">
+            <!-- Los registros se añadirán aquí con JavaScript -->
+        </ul>
+    </div>
+
+    <footer>
+        <p>Edu Torres. Andrés, si esta página llega a ti, te adoramos.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
