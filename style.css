@@ -51,10 +51,10 @@ h2 {
 }
 
 #chalkButton {
-    background-color: #28a745; /* Verde inicial */
+    background-color: #28a745;
     border: none;
     border-radius: 10px;
-    padding: 15px 30px;
+    padding: 15px 20px;
     cursor: pointer;
     font-size: 1.5em;
     color: white;
@@ -63,6 +63,7 @@ h2 {
     align-items: center;
     justify-content: center;
     margin: 0 auto;
+    gap: 14px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -84,9 +85,9 @@ h2 {
 }
 
 .chalk-image {
-    width: 60px; /* Ajusta el tamaño de la imagen */
+    max-width: 30px;
+    width: 100%;
     height: auto;
-    margin-right: 15px;
     filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 }
 
