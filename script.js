@@ -1,19 +1,26 @@
 // 1. Configuración de Firebase
-//    IMPORTANTE: Asegúrate de que esta configuración es la correcta de tu proyecto Firebase.
-//    Ya he corregido el formato duplicado que me enviaste.
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyB2O0glIygIEGqp_Ya6BY5w_lY5OyErLuk",
-    authDomain: "tizasalem.firebaseapp.com",
-    projectId: "tizasalem",
-    storageBucket: "tizasalem.firebasestorage.app",
-    messagingSenderId: "1087196212689",
-    appId: "1:1087196212689:web:a2c0fef78fabd5082004f0",
-    measurementId: "G-Q3PBLZ3WWB"
+  apiKey: "AIzaSyB2O0glIygIEGqp_Ya6BY5w_lY5OyErLuk",
+  authDomain: "tizasalem.firebaseapp.com",
+  databaseURL: "https://tizasalem-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "tizasalem",
+  storageBucket: "tizasalem.firebasestorage.app",
+  messagingSenderId: "1087196212689",
+  appId: "1:1087196212689:web:a2c0fef78fabd5082004f0",
+  measurementId: "G-Q3PBLZ3WWB"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Referencias a elementos del DOM
 const chalkButton = document.getElementById('chalkButton');
