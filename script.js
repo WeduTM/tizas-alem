@@ -1,13 +1,14 @@
 // 1. Configuración de Firebase
-//    IMPORTANTE: Reemplaza estos valores con la configuración de tu propio proyecto Firebase.
-//    Ve a la consola de Firebase -> Configuración del proyecto -> Tus apps -> Web
+//    IMPORTANTE: Asegúrate de que esta configuración es la correcta de tu proyecto Firebase.
+//    Ya he corregido el formato duplicado que me enviaste.
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH_DOMAIN",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_STORAGE_BUCKET",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyB2O0glIygIEGqp_Ya6BY5w_lY5OyErLuk",
+    authDomain: "tizasalem.firebaseapp.com",
+    projectId: "tizasalem",
+    storageBucket: "tizasalem.firebasestorage.app",
+    messagingSenderId: "1087196212689",
+    appId: "1:1087196212689:web:a2c0fef78fabd5082004f0",
+    measurementId: "G-Q3PBLZ3WWB"
 };
 
 // Inicializar Firebase
@@ -22,17 +23,30 @@ const mostChalksClassSpan = document.getElementById('mostChalksClass');
 const mostChalksCountSpan = document.getElementById('mostChalksCount');
 const chalkLogUl = document.getElementById('chalkLog');
 
-// Función para obtener la IP del usuario (con un servicio externo, cuidado con límites de uso)
-async function getUserIp() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch (error) {
-        console.error('Error al obtener la IP:', error);
-        return 'unknown_ip_' + Math.random().toString(36).substr(2, 9); // Fallback
-    }
+
+// --- Funciones para manejar IDs de usuario únicos (reemplaza las IPs) ---
+
+// Función para generar un UUID (Identificador Único Universal)
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
+
+// Función para obtener o generar el ID de usuario desde localStorage
+function getUserId() {
+    let userId = localStorage.getItem('tizasAlemUserId');
+    if (!userId) {
+        userId = generateUUID();
+        localStorage.setItem('tizasAlemUserId', userId);
+    }
+    return userId;
+}
+
+// --- Fin de las funciones de ID de usuario ---
+
 
 // Función para verificar si estamos en horario de ALEM
 function isInAlemHours() {
@@ -61,7 +75,7 @@ function isInAlemHours() {
 function updateButtonState() {
     if (isInAlemHours()) {
         chalkButton.disabled = false;
-        buttonMessage.textContent = '¡Ha roto una tiza!';
+        buttonMessage.textContent = '¡Hora de romper tizas!';
         buttonMessage.className = 'message success';
     } else {
         chalkButton.disabled = true;
@@ -117,7 +131,7 @@ chalkButton.addEventListener('click', async () => {
     buttonMessage.textContent = 'Procesando tu clic...';
     buttonMessage.className = 'message';
 
-    const userIp = await getUserIp();
+    const userId = getUserId(); // Obtener el ID único del usuario/navegador
     const now = firebase.firestore.Timestamp.now();
     const fiveMinutesAgo = new Date(now.toDate().getTime() - 5 * 60 * 1000); // 5 minutos en milisegundos
 
@@ -136,21 +150,21 @@ chalkButton.addEventListener('click', async () => {
 
         // 2. Registrar el clic del usuario en la colección temporal
         await db.collection('temp_clicks').add({
-            ip: userIp,
+            userId: userId, // Ahora guardamos el ID de usuario
             timestamp: now
         });
 
-        // 3. Limpiar clics antiguos y contar IPs únicas en los últimos 5 minutos
+        // 3. Limpiar clics antiguos y contar IDs únicos en los últimos 5 minutos
         const tempClicksRef = db.collection('temp_clicks');
         const recentClicksSnapshot = await tempClicksRef.where('timestamp', '>=', fiveMinutesAgo).get();
         
-        const uniqueIps = new Set();
+        const uniqueUserIds = new Set(); // Ahora contamos IDs de usuario únicos
         recentClicksSnapshot.forEach(doc => {
-            uniqueIps.add(doc.data().ip);
+            uniqueUserIds.add(doc.data().userId);
         });
 
         // 4. Verificar si se cumplen las condiciones
-        if (uniqueIps.size >= 3) {
+        if (uniqueUserIds.size >= 3) { // Verificar si hay 3 o más IDs de usuario únicos
             // Eliminar los clics que ya se usaron para esta tiza, o mantenerlos por si se quiere un log de clicks
             // Para simplificar, los mantenemos y la limpieza será periódica si la implementamos en una Cloud Function
             // Por ahora, solo nos importa para el conteo de esta ejecución.
@@ -176,20 +190,19 @@ chalkButton.addEventListener('click', async () => {
                 // Registrar el evento de la tiza rota
                 await db.collection('chalk_log').add({
                     timestamp: now,
-                    ip: userIp, // Guarda la IP del último en pulsar para el log
+                    userId: userId, // Guarda el ID del usuario/navegador que realizó el último clic válido
                     classDate: classDate
                 });
             });
 
-            buttonMessage.textContent = '¡Felicidades! Otro asesinato ha sido registrado.';
+            buttonMessage.textContent = '¡Felicidades! Otra tiza ha sido asesinada.';
             buttonMessage.className = 'message success';
             
-            // Opcional: limpiar los clicks temporales asociados a este asesinato si queremos un reset estricto
-            // Esta limpieza sería más robusta con una Cloud Function, pero se puede hacer una aproximación aquí.
+            // Opcional: limpiar los clicks temporales más antiguos (mejor con Cloud Function)
             // Por ahora, el sistema de 5 minutos ya limpia implícitamente al filtrar por fecha.
 
         } else {
-            buttonMessage.textContent = `Faltan ${3 - uniqueIps.size} personas para verificar la tiza rota. ¡Ánimo!`;
+            buttonMessage.textContent = `Faltan ${3 - uniqueUserIds.size} personas para romper la tiza. ¡Ánimo!`;
             buttonMessage.className = 'message';
         }
 
