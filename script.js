@@ -1,6 +1,4 @@
 // 1. Configuración de Firebase
-// Import the functions you need from the SDKs you need
-// --- LÍNEAS CORREGIDAS ---
 // Importamos directamente desde las URLs de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
@@ -45,7 +43,7 @@ const mostChalksCountSpan = document.getElementById('mostChalksCount');
 const chalkLogUl = document.getElementById('chalkLog');
 
 
-// --- Funciones para manejar IDs de usuario únicos (esto está perfecto) ---
+// --- Funciones para manejar IDs de usuario únicos ---
 function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -65,7 +63,7 @@ function getUserId() {
 // --- Fin de las funciones de ID de usuario ---
 
 
-// Función para verificar si estamos en horario de ALEM (perfecto)
+// Función para verificar si estamos en horario de ALEM
 function isInAlemHours() {
     const now = new Date();
     const day = now.getDay();
@@ -76,7 +74,7 @@ function isInAlemHours() {
     return isTuesday || isThursday;
 }
 
-// Actualiza el estado del botón y el mensaje inicial (perfecto)
+// Actualiza el estado del botón y el mensaje inicial
 function updateButtonState() {
     if (isInAlemHours()) {
         chalkButton.disabled = false;
@@ -89,7 +87,7 @@ function updateButtonState() {
     }
 }
 
-// --- Lógica de Base de Datos Corregida ---
+// --- Lógica de Base de Datos ---
 
 // Escuchar cambios en la base de datos para actualizar contadores
 const globalStatsRef = ref(db, 'stats/global');
@@ -110,16 +108,20 @@ onValue(globalStatsRef, (snapshot) => {
         }
         mostChalksClassSpan.textContent = mostClass;
         mostChalksCountSpan.textContent = mostCount;
+    } else {
+        // Si no hay datos, resetea los contadores
+        totalChalksSpan.textContent = 0;
+        mostChalksClassSpan.textContent = 'N/A';
+        mostChalksCountSpan.textContent = 0;
     }
 });
 
 // Escuchar cambios en el log de tizas
 const chalkLogRef = ref(db, 'chalk_log');
-// Realtime Database solo ordena de menor a mayor, así que pedimos los últimos 10
 const chalkLogQuery = query(chalkLogRef, orderByChild('timestamp'), limitToLast(10)); 
 
 onValue(chalkLogQuery, (snapshot) => {
-    chalkLogUl.innerHTML = ''; // Limpiar registros anteriores
+    chalkLogUl.innerHTML = '';
     const logs = [];
     snapshot.forEach(childSnapshot => {
         logs.push(childSnapshot.val());
@@ -138,22 +140,20 @@ onValue(chalkLogQuery, (snapshot) => {
 
 // Listener para el botón de la tiza
 chalkButton.addEventListener('click', async () => {
-    // ... (El código de validación de horario y deshabilitar botón es el mismo) ...
     chalkButton.disabled = true;
     buttonMessage.textContent = 'Procesando tu clic...';
     
     const userId = getUserId();
-    const now = Date.now(); // Usamos milisegundos para comparar
+    const now = Date.now();
     const fiveMinutesAgo = now - 5 * 60 * 1000;
 
     try {
-        // 1. Verificar si ya se ha registrado una tiza en los últimos 5 minutos
         const lastChalkQuery = query(chalkLogRef, orderByChild('timestamp'), limitToLast(1));
         const lastChalkSnapshot = await get(lastChalkQuery);
 
         if (lastChalkSnapshot.exists()) {
             let lastChalkTime;
-            lastChalkSnapshot.forEach(child => { // Necesario para acceder al dato
+            lastChalkSnapshot.forEach(child => {
                 lastChalkTime = child.val().timestamp;
             });
             if (now - lastChalkTime < 5 * 60 * 1000) {
@@ -163,56 +163,50 @@ chalkButton.addEventListener('click', async () => {
             }
         }
 
-        // 2. Registrar el clic del usuario en la colección temporal
         const tempClicksRef = ref(db, 'temp_clicks');
         await push(tempClicksRef, {
             userId: userId,
-            timestamp: serverTimestamp() // Usamos el timestamp del servidor
+            timestamp: serverTimestamp()
         });
 
-        // 3. Limpiar clics antiguos y contar IDs únicos en los últimos 5 minutos
         const recentClicksQuery = query(tempClicksRef, orderByChild('timestamp'));
         const recentClicksSnapshot = await get(recentClicksQuery);
 
         const uniqueUserIds = new Set();
         recentClicksSnapshot.forEach(doc => {
             const click = doc.val();
-            // El timestamp del servidor puede ser nulo momentáneamente, lo filtramos por si acaso
             if (click.timestamp && click.timestamp > fiveMinutesAgo) {
                 uniqueUserIds.add(click.userId);
             } else if (click.timestamp <= fiveMinutesAgo) {
-                // Limpiamos clics viejos
                 remove(doc.ref);
             }
         });
 
-        // 4. Verificar si se cumplen las condiciones
         if (uniqueUserIds.size >= 3) {
-            // TRANSACCIÓN para incrementar contadores de forma segura
             await runTransaction(globalStatsRef, (currentData) => {
                 if (!currentData) {
                     currentData = { totalChalks: 0, chalksByClass: {} };
                 }
-               // AÑADIMOS .replace() PARA CAMBIAR LAS BARRAS POR GUIONES
-const classDate = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '-');
+                // --- CORRECCIÓN AQUÍ: Reemplazamos "/" por "-" ---
+                const classDate = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '-');
 
                 currentData.totalChalks = (currentData.totalChalks || 0) + 1;
                 currentData.chalksByClass = currentData.chalksByClass || {};
                 currentData.chalksByClass[classDate] = (currentData.chalksByClass[classDate] || 0) + 1;
                 return currentData;
             });
-
-            // Registrar el evento de la tiza rota en el log
+            
+            // --- CORRECCIÓN AQUÍ TAMBIÉN: Usamos la misma lógica para consistencia ---
+            const logClassDate = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '-');
             await push(chalkLogRef, {
                 timestamp: serverTimestamp(),
                 userId: userId,
-                classDate: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                classDate: logClassDate
             });
 
             buttonMessage.textContent = '¡Felicidades! Otra tiza ha sido asesinada.';
             buttonMessage.className = 'message success';
             
-            // Limpiar todos los clics temporales una vez que se rompe la tiza
             await remove(tempClicksRef);
 
         } else {
