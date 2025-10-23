@@ -1,8 +1,9 @@
 // 1. Configuración de Firebase
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// SDKs para REALTIME DATABASE
+// --- LÍNEAS CORREGIDAS ---
+// Importamos directamente desde las URLs de Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
 import { 
     getDatabase, 
     ref, 
@@ -15,7 +16,7 @@ import {
     limitToLast,
     get,
     remove
-} from "firebase/database";
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
