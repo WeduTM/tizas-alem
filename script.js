@@ -193,7 +193,8 @@ chalkButton.addEventListener('click', async () => {
                 if (!currentData) {
                     currentData = { totalChalks: 0, chalksByClass: {} };
                 }
-                const classDate = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+               // AÑADIMOS .replace() PARA CAMBIAR LAS BARRAS POR GUIONES
+const classDate = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '-');
 
                 currentData.totalChalks = (currentData.totalChalks || 0) + 1;
                 currentData.chalksByClass = currentData.chalksByClass || {};
