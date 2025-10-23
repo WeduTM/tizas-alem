@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asesinatos de Tizas en ALEM</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
+    <!-- Los SDKs de Firebase ya no se importan aquí. 
+         Tu script.js se encarga de todo con 'import'. -->
 </head>
 <body>
     <div class="container">
@@ -40,6 +39,8 @@
         <p>Edu Torres. Andrés, si esta página llega a ti, te adoramos.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- AÑADIDO 'type="module"' para que los 'import' de tu script funcionen -->
+    <script type="module" src="script.js"></script>
+
 </body>
 </html>
